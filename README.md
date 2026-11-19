@@ -237,8 +237,7 @@ of roughly `24 * width * height` bytes per active worker plus the output image.
 Thread scheduling can change the floating-point summation order. Assertions
 remain enabled in release builds.
 
-## Validation and limitations
-
+## Validation 
 CTest runs seven C++ tests. To run the rendering checks, use Python 3
 with its standard library:
 
@@ -254,7 +253,7 @@ It also measures the residual for an identity transform and compares a moving
 scene against a higher-sample PT difference.
 
 
-## Provenance and license
+## License for the assets etc
 
 The paper scenes keep their original active settings and asset filenames.
 The top-level scene folders and the three XML filenames were renamed, and the
