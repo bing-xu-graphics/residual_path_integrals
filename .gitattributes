@@ -1,0 +1,2 @@
+scenes/**/*.obj filter=lfs diff=lfs merge=lfs -text
+scenes/**/*.jpg filter=lfs diff=lfs merge=lfs -text

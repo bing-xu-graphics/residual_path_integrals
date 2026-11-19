@@ -30,3 +30,11 @@
 *.exe
 *.out
 *.app
+
+!scenes/**/*.obj
+build/
+output/
+.DS_Store
+.vscode/
+*.exr
+__pycache__/
