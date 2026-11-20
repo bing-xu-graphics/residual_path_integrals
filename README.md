@@ -2,14 +2,15 @@
 
 <p align="center">
   <strong>🏆 EGSR 2024 Best Paper Award</strong><br>
-  <a href="https://arxiv.org/abs/2406.16302">Paper</a> ·
+  <a href="https://bingxu.tech/papers/residual_path_integral_bing_final.pdf">Paper</a> ·
+  <a href="https://arxiv.org/abs/2406.16302">arXiv</a> ·
   <a href="https://bingxu.tech/projects/2024_residual/page.html">Project page</a>
 </p>
 
 ---
 
 This is a release of the CPU research code used to generate the results in
-[Residual Path Integrals for Re-rendering](https://arxiv.org/abs/2406.16302),
+[Residual Path Integrals for Re-rendering](https://bingxu.tech/projects/2024_residual/page.html),
 by Bing Xu, Tzu-Mao Li, Iliyan Georgiev, Trevor Hedstrom, and Ravi Ramamoorthi (2024).
 
 The renderer estimates a **signed, linear RGB residual**
