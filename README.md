@@ -1,4 +1,12 @@
-# Residual Path Integrals for Re-rendering
+<h1 align="center"> Residual Path Integrals for Re-rendering</h1>
+
+<p align="center">
+  <strong>🏆 EGSR 2024 Best Paper Award</strong><br>
+  <a href="https://arxiv.org/abs/2406.16302">Paper</a> ·
+  <a href="https://bingxu.tech/projects/2024_residual/page.html">Project page</a>
+</p>
+
+---
 
 This is a release of the CPU research code used to generate the results in
 [Residual Path Integrals for Re-rendering](https://arxiv.org/abs/2406.16302),
@@ -13,9 +21,15 @@ Included: the residual renderer, a path tracer, the original Cornell box and
 staircase scenes, and a small example added for this release. Generated images
 are not included.
 
-I'll look for and upload the rest of the scenes we created back then soon.
 
-## Download
+Notice that 
+- This code was from 2024 for the paper results. The paper's timings apply to the original implementation. I guess now at 2026, we encourage using coding agents to optimize this code.
+
+- I spent a lot of time debugging to ensure unbiasedness. Some files and helper routines remain from those intermediate debugging steps and may not be needed for the final residual rendering.
+
+- It currently contains two example scenes, I'll look for and upload the rest of the scenes we created back then soon.
+
+## 🏎️ Download
 
 Scene meshes (`.obj`) and textures (`.jpg`) are stored with Git LFS. Install
 [Git LFS](https://git-lfs.com/) before cloning:
@@ -32,12 +46,12 @@ repository root. Use a Git clone rather than a source ZIP, which may contain
 LFS pointers instead of the assets. Scene XML, material definitions, and license
 files remain in regular Git. Rendered outputs are not included.
 
-## Build
+## 🏎️ Build
 
 Requirements: a C++17 compiler, CMake 3.20 or newer, and **Embree 3** with its runtime
-dependencies. Embree 4 is not API-compatible with this source.
+dependencies. Embree 4 may not API-compatible with this source.
 Download an [Embree 3 release](https://github.com/RenderKit/embree/releases/tag/v3.13.5)
-or build it from source. Install the headers, library, and runtime files together.
+or build it from source.
 Third-party image and XML utilities are already included in `src/3rdparty/`.
 No GPU, Python package, profiler, or graphics-window library is required to render.
 
@@ -67,9 +81,9 @@ If CMake cannot find Embree, set `EMBREE_INCLUDE_DIR` (containing `embree3/`) an
 library directory's sibling `bin/`; override `EMBREE_RUNTIME_DIR` if necessary.
 On Linux/macOS, Embree and TBB must be on the runtime library search path.
 Use a native Embree build on Apple Silicon. Only Windows x64 has been tested for
-this release candidate.
+this release.
 
-## Render the difference image
+## 🏎️ Render the difference image
 
 ```sh
 ./build/glacier scenes/cornell-box/scene.xml --spp 16 -o output/residual.exr
@@ -82,15 +96,12 @@ are created automatically. For a fast preview:
 ./build/glacier scenes/cornell-box/scene.xml --resolution 64 --spp 4 -t 1 -o output/preview.exr
 ```
 
-Use an EXR viewer that supports negative values, such as
+I recommend using an EXR viewer that supports negative values, such as
 [tev](https://github.com/Tom94/tev). A viewer that clamps values to zero will hide
-the negative part of the residual. Display adjustments should not change the
-values saved in the EXR.
+the negative part of the residual. 
 
-This example was added for the release. Its walls and light are rectangles, and
-its only mesh is a moving box. All inputs are included.
 
-## Run the paper scenes
+## 🏎️ Run the paper scenes
 
 The scene files, meshes, and textures are included:
 
@@ -113,8 +124,8 @@ original settings. The active scene settings are unchanged. Their sampler declar
 print a warning: the renderer uses independent samples, as the original code did.
 Output is always signed EXR, regardless of the XML film format.
 
-To render the residual, both PT frames, and their difference in one command,
-use the Python script (standard library only):
+To render the residual and record the command and elapsed time, use the Python
+script (standard library only):
 
 ```sh
 python tools/render_scene.py --bin-dir build --scene paper-cornell-box
@@ -122,10 +133,8 @@ python tools/render_scene.py --bin-dir build --scene paper-staircase
 ```
 
 On Windows use `--bin-dir build/Release`. The script uses the XML residual sample
-count, 256 samples per PT frame, and four threads. Change these with `--spp`,
-`--pt-spp`, `--resolution`, and `--threads`. Images, commands, and elapsed times
-are saved in `output/<scene>/`. The default PT sample count differs from the
-paper's reference settings and does not give an equal-time comparison.
+count and four threads. Change these with `--spp`, `--resolution`, and `--threads`.
+The residual image, command, and elapsed time are saved in `output/<scene>/`.
 
 Each paper scene also preserves the historical `004_frame_1_gt.xml` as
 `reference-old.xml` and `006_frame_2_gt.xml` as `reference-new.xml`;
@@ -140,34 +149,19 @@ Each paper scene also preserves the historical `004_frame_1_gt.xml` as
 ```
 
 These reference XML files may describe a different edit from `residual.xml`.
-The Python script renders both PT states from `residual.xml` so that the
-comparison uses the same geometry. We have not reproduced the paper figures
-with the cleaned executable.
+We have not reproduced the paper figures with the cleaned executable.
 
-Only Cornell box and staircase are included from the paper. The living room,
-Sponza, forest, dining room, and ablation scenes are not included.
+## 🏎️ Path-tracing baseline
 
-## Path-tracing baseline
-
-Render both states of exactly the same scene:
+Render a conventional path-traced image:
 
 ```sh
-./build/glacier scenes/cornell-box/scene.xml --integrator path --frame old --spp 256 -o output/old.exr
 ./build/glacier scenes/cornell-box/scene.xml --integrator path --frame new --spp 256 -o output/new.exr
-./build/image_compare output/new.exr output/old.exr output/pt-difference.exr
-./build/image_compare output/residual.exr output/pt-difference.exr
 ```
 
-`image_compare A B [output]` reports RGB RMSE, maximum absolute difference, and
-the signed range of `A - B`, and optionally writes that difference. It rejects
-mismatched dimensions and non-finite differences.
+Use `--frame old` to render the previous scene state instead.
 
-The PT runs use the same random streams, so their difference is a correlated PT
-estimate. Use a high sample count for a reference image. A residual sample
-evaluates several techniques in both states and costs more than a PT sample.
-Measure elapsed time when comparing performance.
-
-## Scene changes and controls
+## 🏎️ Scene changes and controls
 
 A scene describes the **new** geometry. A shape's optional `dynamic` transform
 maps its new world-space geometry to its old state:
@@ -209,7 +203,11 @@ an alias. Integrator options are `maxDepth` (at least 2; default 5), `rrDepth`,
 (1 = new, 2 = old, for PT). Pixel sampling is independent. Sample seeds are fixed
 in `src/render.cpp`; record any seed changes when doing new experiments.
 
-## Code layout
+## 🏎️ Code layout
+
+Back in 2024, I spent a lot of time debugging this code to identify and remove
+sources of bias. Some files and helper routines remain from those intermediate
+debugging steps and are not needed for the final residual rendering.
 
 | File | Responsibility |
 | --- | --- |
@@ -237,7 +235,7 @@ of roughly `24 * width * height` bytes per active worker plus the output image.
 Thread scheduling can change the floating-point summation order. Assertions
 remain enabled in release builds.
 
-## Validation 
+## 🏎️ Validation
 CTest runs seven C++ tests. To run the rendering checks, use Python 3
 with its standard library:
 
@@ -253,7 +251,7 @@ It also measures the residual for an identity transform and compares a moving
 scene against a higher-sample PT difference.
 
 
-## License for the assets etc
+## 🏎️ License for the assets etc
 
 The paper scenes keep their original active settings and asset filenames.
 The top-level scene folders and the three XML filenames were renamed, and the
@@ -265,14 +263,11 @@ The Wooden Staircase is by **Wig42**, distributed via
 [Benedikt Bitterli's rendering resources](https://benedikt-bitterli.me/resources/)
 under [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/); its original
 [scene license](scenes/paper-staircase/LICENSE.txt) is retained. Third-party scene
-assets are not relicensed by the code's MIT license. Cornell assets retain their
-source attribution; the supplied source did not contain a separate asset license.
-OBJ material files are included where available. The renderer reads materials
-from the XML files.
+assets are not relicensed by the code's MIT license.
 
 Original contributions and the inherited
 [lajolla renderer](https://github.com/BachiLi/lajolla_public) are covered by
-[LICENSE](LICENSE), retaining Tzu-Mao Li's upstream MIT attribution.
+[LICENSE](LICENSE), retaining professor Tzu-Mao Li's upstream MIT attribution.
 Third-party components retain their own notices in their source:
 pugixml, stb_image, tinyexr (including embedded OpenEXR notices), miniz, and tinyply.
 The renderer uses PCG random-number generation and draws on pbrt, Mitsuba, and
@@ -281,7 +276,9 @@ SmallVCM. The pbrt-derived threading code retains its
 [upstream license](https://github.com/mmp/pbrt-v3/blob/master/LICENSE.txt).
 Embree and its runtime dependencies are installed separately.
 
-When using this work, cite:
+
+## 🏎️ Citation
+When using this work, please cite: 
 
 ```bibtex
 @article{xu2024residual,
